@@ -3,7 +3,7 @@ from pathlib import Path
 from collections import Counter
 import re
 
-input_file = "sample_file.txt"
+input_file = "war_and_peace.txt"
 num_threads = 10
 counter_lock = threading.Lock()
 word_counter = Counter()
@@ -80,7 +80,7 @@ def thread_job(filename, num_threads):
 
             thread_lines = lines[start:end]
 
-            #Conditional to handle remaining lines.
+            #Send remaining line to the last thread to proccess it.
             if i == num_threads - 1:
                 print(f"Conditional 1: Thread {i + 1} will process data from {start} to {end} and an additional of {remaining_lines} remaining lines")
                 end += remaining_lines
