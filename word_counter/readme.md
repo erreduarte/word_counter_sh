@@ -6,11 +6,13 @@ The Word Counter script uses Python's threading to count words in large text fil
 
 ## Implementation
 
-One of the main challenges I faced was sharing tasks among the threads. At first, I tried using `ThreadPoolExecutor`, but it didn’t keep a fixed number of threads. Instead, it only used as many threads as needed. For a 3.5 MB file, it ended up using only one thread, which wasn’t efficient.
+### Functions
 
-To fix this, I decided to manage the threads myself. I split the input file into smaller parts to make sure each thread had a fair amount of work. This way, I had better control over how the threads were used, which improved the overall speed.
+- **count_words(thread_lines)**: This function takes a list of lines (a chunk) as input. It decodes the lines if they are in bytes, cleans up the text by removing unwanted characters using a regex, and then splits the lines into words. It updates the global `word_counter` with the count of each word, ensuring thread safety with a lock.
 
-After the script counts the words, it creates a new text file. This output file takes the name of the input file and adds "output" to it (e.g., `input_filename_output.txt`). It is saved in the same folder where the script runs, making it easy to find.
+- **save(word_counter, output_file)**: This function saves the word counts to a new output file. It calculates the total number of words processed and writes each word and its count to the file in descending order. It also prints out the total number of words processed and the location of the output file.
+
+- **thread_job(filename, num_threads)**: This function manages the threading process. It reads the input file, calculates how many lines each thread should handle, and creates threads to process the chunks of lines. It also handles any remaining lines that do not evenly divide among the threads. It starts each thread and waits for them to finish.
 
 ## Testing
 
