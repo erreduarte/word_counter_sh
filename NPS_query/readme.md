@@ -10,8 +10,8 @@ Both queries utilized the `CASE WHEN` statement to filter through columns and id
 
 To align with the platform requirements discussed in the first interview, I chose to execute and analyze both queries in Google BigQuery. This decision reflects the emphasis on using BigQuery for the job. You can review the saved queries here:
 
-- **Query 1 (Nested)**: [View Query](https://console.cloud.google.com/bigquery?ws=!1m7!1m6!12m5!1m3!1sliquid-crossing-439416-p5!2seurope-southwest1!3s0602f19b-5df8-4b6a-aadf-0b81eb47e64f!2e1)
-- **Query 2 (CTEs)**: [View Query](https://console.cloud.google.com/bigquery?ws=!1m7!1m6!12m5!1m3!1sliquid-crossing-439416-p5!2seurope-southwest1!3s8a81b849-fcd6-47a6-8035-585868be1903!2e1)
+- **Query 1 (Nested)**: [View Query](Query1_Nested.sql)
+- **Query 2 (CTEs)**: [View Query](Query2_CTE.sql)
 
 This approach ensures consistency with the tools used in the job environment.
 
@@ -26,7 +26,7 @@ Regardless of the approach, both queries indicate potential bottlenecks in the c
 
 ## Performance Metrics
 
-|-------------------------|-----------------|----------------|
+
 | Metric                  | Query 1 (Nested)| Query 2 (CTEs) |
 |-------------------------|-----------------|----------------|
 | Elapsed Time            | 181 ms          | 187 ms         |
@@ -37,7 +37,6 @@ Regardless of the approach, both queries indicate potential bottlenecks in the c
 | **Total Read Time**     | 4 ms            | 3 ms           |
 | **Total Write Time**    | 19 ms           | 18 ms          |
 | **Total Compute Time**  | 19 ms           | 23 ms          |
-|-------------------------|-----------------|----------------|
 
 ## Analysis of Bottlenecks
 - **Query 1**: This query took a total compute time of 19 ms, showing that it runs efficiently. The overall time of 181 ms indicates that it effectively uses resources, especially during the computing part.
