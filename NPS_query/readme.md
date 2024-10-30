@@ -22,7 +22,7 @@ The two approaches tested:
 - **Query 2**: Implements Common Table Expressions (CTEs), offering a more modular syntax but potentially impacting performance.
 
 ## General Performance Overview
-Regardless of the approach, both queries indicate potential bottlenecks in the compute phase. In scenarios with large datasets, it would be beneficial to partition the table. My suggested partitioning would be based on the patient_id and date columns, as these are the most commonly used fields by analysts for daily analysis. Given that the NPS is evaluated bi-weekly, this partitioning would allow for improved parallelization and provide ready-to-use data. Additionally, pre-extracting data from the JSON column is important, as concurrency and on-demand JSON parsing can create significant overhead, impacting query performance and job stability.
+Regardless of the approach, both queries indicate potential bottlenecks in the compute phase. In scenarios with large datasets, it would be beneficial to partition the table. My suggested partitioning would be based on the patient_id and date columns, as these tend to be the most commonly used fields by analysts for daily analysis. Given that the NPS is evaluated bi-weekly, this partitioning would allow for improved parallelization and provide ready-to-use data. Additionally, pre-extracting data from the JSON column is important, as concurrency and on-demand JSON parsing can create significant overhead, impacting query performance and job stability.
 
 ## Performance Metrics
 
