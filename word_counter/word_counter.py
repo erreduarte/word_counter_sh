@@ -25,9 +25,10 @@ def count_words(thread_lines):
                 line = line.decode('utf-8')
         
             line = line.replace('\n', ' ')
+
             # This regex may need adjustment based on the content of the file. 
             # It works well for book-like text but may not be suitable for files 
-            # containing URLs or other non-standard text.
+            # containing URLs or other non-standard text. In this case, use strip to get ridden of unwanted objects.
             line = re.sub(r"[^\w\s']|(?<=\s)'|'(?=\s)", '', line).lower()
 
             words = line.split()
@@ -46,7 +47,7 @@ def save(word_counter, output_file):
     total_words = sum(word_counter.values())
 
     #Save output file to the current directory
-    output_path = Path(output_file)
+    output_path = Path(output_file).resolve()
 
     try:
         with open(output_path, 'w') as output_file:
@@ -59,15 +60,14 @@ def save(word_counter, output_file):
         logging.error(f"An error occurred in save function: {e}")
 
     logging.info(f"A total of {total_words} words were processed")    
-    logging.info(f"Output file: {output_path}")
+    logging.info(f"Output file was saved in the following directory: {output_path}")
     
 
 
 def thread_job(filename, num_threads):
 
-    start_time = time.time()
     try:
-        logging.info(f"Opening {filename}")
+        logging.info(f"Opening input file {filename}")
         with open(filename, 'rb') as file_pointer:
             lines = file_pointer.readlines()
             total_lines = len(lines)
@@ -76,16 +76,18 @@ def thread_job(filename, num_threads):
             logging.info(f"The input file contains a total of {total_lines} lines") 
             logging.info(f"Each thread will process {lines_per_thread} lines")
         
-        
+        # Calculate any leftover lines that couldn't be evenly divided by the number of threads.
         remaining_lines = total_lines % num_threads
         threads = []
         for i in range(num_threads):
+            #Define start and end points to each thread to work on.
             start = i * lines_per_thread
             end = start + lines_per_thread            
             
+            # Select the lines assigned to the current thread based on the start and end indices
             thread_lines = lines[start:end]
 
-            #Send remaining line to the last thread to proccess it.
+            # If this is the last thread, add any remaining lines to its workload.
             if i == num_threads - 1:
                 logging.info(f"Thread-{i + 1} will process data from {start} to {end} and an additional of {remaining_lines} remaining lines")
                 end += remaining_lines
@@ -96,7 +98,7 @@ def thread_job(filename, num_threads):
             threads.append(t)
 
             #Print the thread that has started
-            print(f'{t.name} started')
+            logging.info(f'{t.name} started')
             
             t.start()
 
@@ -109,7 +111,7 @@ def thread_job(filename, num_threads):
         logging.error(f"An error ocurred: {e}")
 
     file_pointer.close()
-    logging.info(f"The file {input_file} was closed")    
+    logging.info(f"The input file {input_file} was closed")    
 
 
 if __name__ == '__main__':
