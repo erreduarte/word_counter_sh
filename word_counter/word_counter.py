@@ -23,6 +23,8 @@ def count_words(thread_lines):
         for line in thread_lines:
             if isinstance(line, bytes):
                 line = line.decode('utf-8')
+            # Cleanup tailored for literary texts; for other types, consider using strip for specific elements.
+            # Lowercasing standardizes all words to prevent counting distinctions. e.g.: Word: 1 / word: 1
             line = re.sub(r"[^\w\s']|(?<=\s)'|'(?=\s)", '', line.replace('\n', ' ')).lower()
             words = line.split()
             
@@ -34,7 +36,9 @@ def count_words(thread_lines):
 
 def save(word_counter, output_file):
     """Saves the word counts to an output file."""
+    #For the purpose of printing the counting of words after processing.
     total_words = sum(word_counter.values())
+    #For the purpose of printing the whole path after file is processed.
     output_path = Path(output_file).resolve()
 
     try:
@@ -50,6 +54,7 @@ def save(word_counter, output_file):
 
 def thread_job(filename, num_threads):
     """Divides the file into chunks and assigns each to a separate thread for processing."""
+    
     try:
         logging.info(f"Opening input file {filename}")
         with open(filename, 'rb') as file_pointer:
@@ -57,32 +62,40 @@ def thread_job(filename, num_threads):
             total_lines = len(lines)
             lines_per_thread = total_lines // num_threads
 
-            logging.info(f"The input file contains a total of {total_lines} lines")
-            logging.info(f"Each thread will process {lines_per_thread} lines")
+            logging.info(f"The input file contains a total of {total_lines} line(s)")
+            logging.info(f"Each thread will process {lines_per_thread} line(s)")
 
         remaining_lines = total_lines % num_threads
+        logging.info(f"A total of {remaining_lines} remaining line(s) will be distributed across threads")
         threads = []
+        #Set previous end so processing don't overlap
+        previous_end = 0
 
         for i in range(num_threads):
-            start = i * lines_per_thread
-            end = start + lines_per_thread            
-            thread_lines = lines[start:end]
+            start = previous_end 
+            end = start + lines_per_thread + (1 if i < remaining_lines else 0) ## If there are remaining lines, add 1 to the end for the first few threads.
+           
+            
+            #Making sure start from threads don't overlap with end of the previous one.
+            if i > 0:
+                start = previous_end + 1 
+            
+            previous_end = end #Ensure next line start in the right position
 
-            # Add remaining lines to the last thread
-            if i == num_threads - 1:
-                logging.info(f"Thread-{i + 1} will process data from {start} to {end} with {remaining_lines} additional lines")
-                end += remaining_lines
+            
+            thread_lines = lines[start:end]
 
             t = threading.Thread(target=count_words, args=(thread_lines,))
             threads.append(t)
-            logging.info(f'{t.name} started processing lines {start} to {end}')
+            #Logs lines that will be processed and remaining lines if they exist.
+            logging.info(f'{t.name} started processing lines {start} to {end} and {1 if i < remaining_lines else 0} remaining line(s)')
             t.start()
 
         for t in threads:
             t.join()
 
     except Exception as e:
-        logging.error(f"An error occurred: {e}")
+        logging.error(f"An error occurred in thread_job: {e}")
 
     logging.info(f"The input file {input_file} was closed")
 
